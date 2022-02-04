@@ -1,0 +1,28 @@
+{
+  "name": "ethereum-user-auth",
+  "version": "1.0.0",
+  "description": "Example of authenticating user session with an Ethereum signature",
+  "main": "app.js",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "ethereumjs-util": "^7.1.4",
+    "express": "^4.17.2",
+    "express-session": "^1.17.2",
+    "pug": "^3.0.2",
+    "web3": "^1.7.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelJyee/ethereum-user-auth.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michaelJyee/ethereum-user-auth/issues"
+  },
+  "homepage": "https://github.com/michaelJyee/ethereum-user-auth#readme"
+}
