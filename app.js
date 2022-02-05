@@ -41,17 +41,11 @@ app.get('/api/user/:publicAddress/message', (req, res) => {
 app.post('/api/authenticate', (req, res) => {
   const { publicAddress, signature } = req.body;
   const sessionId = req.session.id;
-
   const user = users[publicAddress.toLowerCase()];
   const message = _getMessage(user.nonce);
 
-  const encodedMessage = ethUtil.hashPersonalMessage(Buffer.from(message));
-  const sig = ethUtil.fromRpcSig(ethUtil.addHexPrefix(signature));
-  const publicAddressKey = ethUtil.ecrecover(encodedMessage, sig.v, sig.r, sig.s);
-  const addressBuffer = ethUtil.publicToAddress(publicAddressKey);
-  const signatureDerivedPublicAddress = ethUtil.bufferToHex(addressBuffer);
-
-  if(signatureDerivedPublicAddress.toLowerCase() === publicAddress.toLowerCase()){
+  const isValid = _isValidateSignature(publicAddress, message, signature);
+  if(isValid){
     authenticatedUsers[sessionId] = { ...user.userData };
     res.status(200).send();
   }
@@ -73,8 +67,25 @@ app.post('/api/user', (req, res) => {
   }
 });
 
+
+/**
+ * Creates Message For Client To Sign
+ */
 function _getMessage(nonce){
   return "You are authenticating... This Authentication will NOT cost any gas.\n\n\nAuthorizationId:" + nonce;
+}
+
+/**
+ * Validates Signature / Public Address 
+ */
+function _isValidateSignature(publicAddress, message, signature){
+  const encodedMessage = ethUtil.hashPersonalMessage(Buffer.from(message));
+  const sig = ethUtil.fromRpcSig(ethUtil.addHexPrefix(signature));
+  const publicAddressKey = ethUtil.ecrecover(encodedMessage, sig.v, sig.r, sig.s);
+  const addressBuffer = ethUtil.publicToAddress(publicAddressKey);
+  const signatureDerivedPublicAddress = ethUtil.bufferToHex(addressBuffer);
+
+  return (signatureDerivedPublicAddress.toLowerCase() === publicAddress.toLowerCase());
 }
 
 /* PAGES */
