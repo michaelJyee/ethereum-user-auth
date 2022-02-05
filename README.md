@@ -26,8 +26,7 @@ You need to have an Ethereum wallet added to your browser
   npm install
   ```
 
-3. Install NPM packages.
+3. Run the app!
   ```sh
   node app.js
   ```
-
