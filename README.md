@@ -30,3 +30,8 @@ You need to have an Ethereum wallet added to your browser
   ```sh
   node app.js
   ```
+
+## Diagram / Flowchart
+
+![ethwallauth](https://user-images.githubusercontent.com/1615559/152660919-89ad6e25-6e9b-4d84-bbcf-0f3522e48d6d.jpeg)
+
