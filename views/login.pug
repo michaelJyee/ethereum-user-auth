@@ -1,0 +1,95 @@
+html
+  head
+    link(rel="stylesheet" href="/style.css")
+  body
+    div.top
+      a(onClick="initAuth()" href="#") Login
+      a(href="/users_only_page") Secret Page
+    div.main
+      h1 Login Page
+      p Anyone can view this page!
+      hr
+      h2 Create New Account
+      div#createUser
+        label User Name:
+        br
+        br
+        input
+        br
+        br
+        button(onClick="createNewUser()") Create User
+
+script(src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.25.0/axios.min.js") 
+script(src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js")
+script.
+  let web3, publicAddress;
+  connectWallet();
+
+  /* Connect Ethereum Wallet */
+  function connectWallet(){
+    if(!window.ethereum) console.error("window.ethereum not found"); 
+    else{
+      web3 = new Web3(window.ethereum);
+      window.ethereum.enable()
+        .then(() => {
+          return web3.eth.getCoinbase(); /* Gets The Public Address */
+        })
+        .then(address => {
+          publicAddress = address;
+        })
+        .catch(err => console.error("client has not enabled wallet", err));
+    }
+  }
+
+  /* Initialize Authenticate */
+  function initAuth(){
+    axios.get(`/api/user/${publicAddress}/message`)
+      .then(({ data }) => {
+        if(!data.message) console.warn(`No User Found Associated With Public Address:${publicAddress}`);
+        else return data.message;
+      })
+      .then(message => {
+        return signMessage(publicAddress, message);
+      })
+      .then(signature => {
+        return requestAuthorizedSession(publicAddress, signature);
+      })
+      .catch(err => console.error("Failed To Autheticate"));
+  }
+
+  /* Sign Message */
+  function signMessage(publicAddress, message){
+    return new Promise((resolve, reject) => {
+      const encodedMessage = web3.utils.fromUtf8(message);
+      web3.eth.personal.sign(encodedMessage, publicAddress, (err, signature) => {
+        if(err) reject(err);
+        else resolve(signature);
+      })
+    });
+  }
+
+  /* Request Authorized Session */
+  function requestAuthorizedSession(publicAddress, signature){
+    const body = { publicAddress, signature };
+    axios.post('/api/authenticate', body)
+      .then(() => {
+        /* Redirect To Users Only Page */
+        document.location = "/users_only_page";
+      })
+      .catch(err => console.error("Failed To Authenticate"));
+  }
+
+  function createNewUser(){
+    const userName = document.querySelector('#createUser input').value;
+    const userData = { userName };
+
+    const body = { publicAddress, userData };
+    axios.post('/api/user', body)
+      .then(() => {
+        initAuth();
+        document.querySelector('#createUser input').value = "";
+      })
+      .catch(err => {
+        console.error("Failed to create user");
+      })
+  }

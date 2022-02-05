@@ -1,0 +1,10 @@
+html
+  head
+    link(rel="stylesheet" href="/style.css")
+  body
+    div.top
+      a(onClick="initAuth()" href="/logout") logout
+    div.main
+      h1 Secret Page
+      p You Are Authenticated User:
+      p= user

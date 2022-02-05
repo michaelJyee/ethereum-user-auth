@@ -7,53 +7,93 @@ const session = require('express-session');
 const app = express();
 const port = 3000;
 
-const users = [{
-  nonceValue: 69,            /* Random Number */
-  publicAddress: '',         /* User's Ethereum Public Address */
-  userData: {                /* User Information */
-    userName: 'Michael Yee'
-  }
-}];
-
-const authenticatedUsers = {};
-
+/* SETUP EXPRESS */
 app.set('view engine', 'pug');
+app.use(express.static('assets'));
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({secret: "very important secret"}));
 
-app.get('/', (req, res) => {
-  const sessionId = req.session.id;
+const authenticatedUsers = {};
+const users = {};
 
-  res.render('home');
-});
+/* AUTHENTICATED USER MIDDLEWARE */
+const isAuthenticated = (req, res, next) => {
+  if(authenticatedUsers[req.session.id]){
+    req.session.user = authenticatedUsers[req.session.id];
+    next();
+  }
+  else res.redirect('./login');
+};
 
-/* User API */
-app.get('/api/user/:publicAddress/nonce', (req, res) => {
+/* API */
+app.get('/api/user/:publicAddress/message', (req, res) => {
   const { publicAddress } = req.params;
-  const user = users.find(user => user.publicAddress === publicAddress);
+  const user = users[publicAddress.toLowerCase()];
 
   if(!user) res.send(404);
-  else res.json({ publicAddress, nonce: user.nonceValue });
+  else{
+    const message = _getMessage(user.nonce);
+    res.json({ publicAddress, message });
+  }
 });
 
 app.post('/api/authenticate', (req, res) => {
   const { publicAddress, signature } = req.body;
   const sessionId = req.session.id;
 
-  const user = users.find(user => user.publicAddress === publicAddress);
-  const nonce = "" + user.nonceValue;
+  const user = users[publicAddress.toLowerCase()];
+  const message = _getMessage(user.nonce);
 
-  const encodedNonce = ethUtil.hashPersonalMessage(Buffer.from(nonce));
+  const encodedMessage = ethUtil.hashPersonalMessage(Buffer.from(message));
   const sig = ethUtil.fromRpcSig(ethUtil.addHexPrefix(signature));
-  const publicAddressKey = ethUtil.ecrecover(encodedNonce, sig.v, sig.r, sig.s);
+  const publicAddressKey = ethUtil.ecrecover(encodedMessage, sig.v, sig.r, sig.s);
   const addressBuffer = ethUtil.publicToAddress(publicAddressKey);
   const signatureDerivedPublicAddress = ethUtil.bufferToHex(addressBuffer);
 
   if(signatureDerivedPublicAddress.toLowerCase() === publicAddress.toLowerCase()){
     authenticatedUsers[sessionId] = { ...user.userData };
-    res.send();
+    res.status(200).send();
   }
+  else res.status(400);
+});
+
+app.post('/api/user', (req, res) => {
+  const { publicAddress, userData } = req.body;
+  const newUser = {
+    publicAddress,
+    userData,
+    nonce: Math.floor(Math.random() * 1000000)
+  };
+
+  if(!newUser?.publicAddress) res.send(400);
+  else{
+    users[publicAddress.toLowerCase()] = newUser;
+    res.status(200).send();
+  }
+});
+
+function _getMessage(nonce){
+  return "You are authenticating... This Authentication will NOT cost any gas.\n\n\nAuthorizationId:" + nonce;
+}
+
+/* PAGES */
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+app.get('/logout', isAuthenticated, (req, res) => {
+  delete authenticatedUsers[req.session.id]; /* REMOVE SESSION ID FROM AUTHENTICATED USERS */
+  res.redirect('login');
+});
+
+app.get('/users_only_page', isAuthenticated, (req, res) => {
+  const user = JSON.stringify(req.session.user);
+  res.render('users_only_page', {user});
+});
+
+app.get('/*', (req, res) => {
+  res.redirect('login');
 });
 
 app.listen(port, () => {
