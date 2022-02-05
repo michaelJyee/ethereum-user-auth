@@ -1,29 +1,33 @@
 # ethereum-user-auth
 Example of authenticating user session with an Ethereum signature
 
-#quick start
+## Requirements
 
+You need to install the [Node.js](https://nodejs.dev/)
+and `npm` package manager first.
 
-`$ npm install`
+You need to have an Ethereum wallet added to your browser
 
-```
-app.js
+> Recommended Ethereum Wallet:
+> [METAMASK](https://metamask.io/download/)
 
-/* ADD YOUR PUBLIC ADDRESS */
-const users = [{
-  nonceValue: 69, // Any Random Number
-  
-  publicAddress: '', /* SET THIS TO YOUR PUBLIC ADDRESS TO TEST WITH */
-  
-  /* Add any user data you want inside this object */
-  userData: {
-    userName: 'Michael Yee'
-  }
-}];
-```
+## Installation
 
-`node app.js`
+1. Clone the repository.
+  ```sh
+  git clone https://github.com/michaelJyee/ethereum-user-auth.git
+  ```
+2. Get inside the cloned project folder.
+  ```sh
+  cd ethereum-user-auth
+  ```
+3. Install NPM packages.
+  ```sh
+  npm install
+  ```
 
-
-
+3. Install NPM packages.
+  ```sh
+  node app.js
+  ```
 
