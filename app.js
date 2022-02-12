@@ -27,13 +27,19 @@ const isAuthenticated = (req, res, next) => {
 };
 
 /* API */
+
+/**
+ * Route Will Search For User By Public Address
+ * And Return Unique Message To Sign
+ */
 app.get('/api/user/:publicAddress/message', (req, res) => {
   const { publicAddress } = req.params;
+  const sessionId = req.session.id;
   const user = users[publicAddress.toLowerCase()];
 
   if(!user) res.send(404);
   else{
-    const message = _getMessage(user.nonce);
+    const message = _getMessage(sessionId);
     res.json({ publicAddress, message });
   }
 });
@@ -42,7 +48,7 @@ app.post('/api/authenticate', (req, res) => {
   const { publicAddress, signature } = req.body;
   const sessionId = req.session.id;
   const user = users[publicAddress.toLowerCase()];
-  const message = _getMessage(user.nonce);
+  const message = _getMessage(sessionId);
 
   const isValid = _isValidateSignature(publicAddress, message, signature);
   if(isValid){
@@ -56,8 +62,7 @@ app.post('/api/user', (req, res) => {
   const { publicAddress, userData } = req.body;
   const newUser = {
     publicAddress,
-    userData,
-    nonce: Math.floor(Math.random() * 1000000)
+    userData
   };
 
   if(!newUser?.publicAddress) res.send(400);
@@ -71,10 +76,10 @@ app.post('/api/user', (req, res) => {
 /**
  * Creates Message For Client To Sign
  */
-function _getMessage(nonce){
+function _getMessage(sessionId){
   return "You Are Authenticating!\n\n" + 
          "This Authentication Will NOT Cost Any Gas.\n" + 
-         "AuthorizationId:" + nonce;
+         sessionId;
 }
 
 /**
