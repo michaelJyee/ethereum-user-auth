@@ -72,7 +72,9 @@ app.post('/api/user', (req, res) => {
  * Creates Message For Client To Sign
  */
 function _getMessage(nonce){
-  return "You are authenticating... This Authentication will NOT cost any gas.\n\n\nAuthorizationId:" + nonce;
+  return "You Are Authenticating!\n\n" + 
+         "This Authentication Will NOT Cost Any Gas.\n" + 
+         "AuthorizationId:" + nonce;
 }
 
 /**
