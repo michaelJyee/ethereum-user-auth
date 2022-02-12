@@ -1,3 +1,19 @@
+* {
+  font-family: arial; 
+}
+
+.pull-left {
+  float: left;
+}
+
+.pull-right {
+  float: right;
+}
+
+.hide {
+  display: none;
+}
+
 .top {
   height: 40px;
   border-bottom: 1px solid black;
@@ -5,10 +21,101 @@
 
 .top a {
   margin: 0 10px;
-  float: right;
   font-size: 30px;
+}
+
+input {
+  height: 2rem;
+  font-size: 2rem;
+  width: 50%;
+}
+
+#error {
+  position: fixed;
+  top: 55px;
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 1.5rem;
+  border: 2px red solid;
+}
+
+#userInfo {
+  position: relative;
+}
+
+#createUser label {
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+button {
+  cursor: pointer;
+}
+
+button#cancel {
+  font-weight: 600;
+  font-size: 1.5rem;
+  border-radius: 5px;
+  color: #fff;
+  background: #dc3545;
+}
+
+button#loginButton {
+  color: #fff;
+  background-color: #007bff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 20px;
+  width: 80%;
+  border-radius: 15px;
+  margin: 0 auto;
+  display: block;
+}
+
+button#createUserBtn {
+  color: #fff;
+  background-color: #28a745;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 20px;
+  width: 50%;
+  border-radius: 15px;
+  margin: 0 auto;
+  display: block;
+}
+
+#userInfo{
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.main {
+  width: 60%;
+  margin: 100px auto;
+  border-radius: 15px;
+  background-color: #f8f9fa!important;
+  padding: 2rem;
+}
+
+.main hr {
+  margin: 1.5rem 0;
 }
 
 .main p {
   font-size: 1.5em;
+}
+
+.bold {
+  font-weight: 900;
+}
+
+#connectWallet {
+  float:left;
+}
+
+#publicAddress {
+  background-color: #90ee90;
 }

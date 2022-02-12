@@ -1,28 +1,31 @@
 html
   head
+    title Login Demo
     link(rel="stylesheet" href="/style.css")
   body
     div.top
-      a(onClick="initAuth()" href="#") Login
-      a(href="/users_only_page") Secret Page
-    div.main
-      h1 Login Page
-      p Anyone can view this page!
+      a#connectWallet(onClick="connectWallet()" href="#").pull-left Connect Wallet
+      a#publicAddress.pull-left.hide
+      a(href="/users_only_page").pull-right Secret Page
+    #error.hide Error:
+    div#login.main
+      button#loginButton(onClick="initAuth()") Login Here
       hr
-      h2 Create New Account
-      div#createUser
+      button(onClick="state.createUser = true")#createUserBtn Create New Account
+    div#createUser.main.hide
+      div#userInfo
         label User Name:
         br
-        br
-        input
-        br
-        br
-        button(onClick="createNewUser()") Create User
+        input(placeholder="Enter User Name")
+
+      button(onClick="createNewUser()")#createUserBtn Sign Up
+      hr
+      button#cancel(onClick="state.createUser = false" href="#") Cancel
 
 script(src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.25.0/axios.min.js") 
 script(src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.6.1/web3.min.js")
 script.
-  let web3, publicAddress;
+  let web3, publicAddress, state = {};
   connectWallet();
 
   /* Connect Ethereum Wallet */
@@ -47,6 +50,12 @@ script.
       .then(({ data }) => {
         if(!data.message) console.warn(`No User Found Associated With Public Address:${publicAddress}`);
         else return data.message;
+      })
+      .catch(err => {
+        if(err.message.includes("404")){
+          _alertError(`No User Found For Public Address "${publicAddress.substr(0, 8)}..."\n=> Create New User!`);
+        }
+        else _alertError(err);
       })
       .then(message => {
         return signMessage(publicAddress, message);
@@ -93,3 +102,46 @@ script.
         console.error("Failed to create user");
       })
   }
+
+  function updateDom(){
+    if(web3 && publicAddress) {
+      _hide('#connectWallet');
+      _setText('#publicAddress', `Connected:${publicAddress.substr(0, 8)}...`);
+      _show('#publicAddress');
+    }
+
+    if(state.createUser){
+      _hide('#login');
+      _show('#createUser');
+    }
+    else{
+      _show('#login');
+      _hide('#createUser');
+    }
+  }
+
+  function _hide(selector){
+    const element = document.querySelector(selector);
+    element.classList.add("hide");
+  }
+
+  function _show(selector){
+    const element = document.querySelector(selector);
+    element.classList.remove("hide");
+  }
+
+  function _setText(selector, text){
+    const element = document.querySelector(selector);
+    element.innerText = text;
+  }
+
+  function _alertError(message){
+    const el = document.querySelector('#error.hide');
+    el.innerText = message;
+    _show('#error.hide');
+    setTimeout(() => {
+      _hide('#error');
+    }, 5000);
+  };
+
+  setInterval(updateDom, 500);
